@@ -47,7 +47,7 @@ stages:
     
     # Write version info to a file for artifact publishing into artifact staging directory
     - script: |
-        echo "Version: ${{ parameters.environment }}-$(SHORT_SHA)" > $(Build.ArtifactStagingDirectory)/version.txt
+        echo "${{ parameters.environment }}-$(SHORT_SHA)" > $(Build.ArtifactStagingDirectory)/version.txt
       displayName: 'Write version info'
 
     - task: Docker@2
