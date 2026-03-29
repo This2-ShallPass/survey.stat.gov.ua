@@ -34,12 +34,12 @@ stages:
 
     - script: |
         SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
-        echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
+        echo "##vso[task.setvariable variable=VERSION]${{ parameters.environment }}-$(SHORT_SHA)-$(Build.BuildNumber)"
       displayName: 'Generate short commit hash'
 
     # Set Build.BuildNumber to the short commit hash for better traceability
     - script: |
-        echo "##vso[build.updatebuildnumber]${{ parameters.environment }}-$(SHORT_SHA)"
+        echo "##vso[build.updatebuildnumber]$(VERSION)"
       displayName: 'Update Build Number'
 
     # Set build tag to environment for release pipelines
@@ -49,8 +49,9 @@ stages:
     
     # Write version info to a file for artifact publishing into artifact staging directory
     - script: |
-        echo "${{ parameters.environment }}-$(SHORT_SHA)" > $(Build.ArtifactStagingDirectory)/version.txt
-      displayName: 'Write version info'
+        echo "$(VERSION)" > $(Build.ArtifactStagingDirectory)/version.txt
+        echo ${{ parameters.environment }} > $(Build.ArtifactStagingDirectory)/environment.txt
+      displayName: 'Write version and environment info'
 
     - task: Docker@2
       displayName: 'Build and Push'
@@ -60,7 +61,7 @@ stages:
         command: 'buildAndPush'
         Dockerfile: '$(dockerfilePath)'
         tags: |
-          ${{ parameters.environment }}-$(SHORT_SHA)
+          $(VERSION)
           ${{ parameters.environment }}-latest
 
     - task: PublishBuildArtifacts@1
@@ -68,3 +69,9 @@ stages:
       inputs:
         pathToPublish: '$(Build.ArtifactStagingDirectory)/version.txt'
         artifactName: 'image-version'
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish environment artifact'
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)/environment.txt'
+        artifactName: 'build-environment'
