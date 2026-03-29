@@ -12,7 +12,6 @@ parameters:
   default: tst
   values:
     - tst
-    - uat
     - prd
 
 variables:
