@@ -34,7 +34,7 @@ stages:
 
     - script: |
         SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
-        echo "##vso[task.setvariable variable=VERSION]${{ parameters.environment }}-$(SHORT_SHA)-$(Build.BuildNumber)"
+        echo "##vso[task.setvariable variable=VERSION]${{ parameters.environment }}-$SHORT_SHA-$(Build.BuildNumber)"
       displayName: 'Generate short commit hash'
 
     # Set Build.BuildNumber to the short commit hash for better traceability
